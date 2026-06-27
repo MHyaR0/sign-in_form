@@ -27,10 +27,6 @@ def delete(id):
     con.commit()
 
 
-def search_(inp,inp2):
-    cur.execute('select * from info where username like ? and password like ?',(f'%{inp}%',f'%{inp2}%')) 
-    record = cur.fetchall()
-    return record
 
 
 
@@ -50,16 +46,8 @@ def insert_2():
     if not username or not password:
         messagebox.showerror('!','you must enter username and password!')
         return
-    # insert(username,password)
-    # clear()
-    # messagebox.showinfo('!','record inserted')
     ent_name.focus_set()
-    search = search_(username,password)
-    for i in search:
-        if username == i[1] and password == i[2]:
-            print('hi')
-            return
-    # insert(username,password)
+    insert(username,password)
 
 
 
@@ -89,20 +77,6 @@ def delete_user():
         show()
 
 
-def search_user():
-    username = ent_name.get()
-    password = ent_pass.get()
-    search_username = f'%{username}%'
-    search_password = f'%{password}%'
-    search = search_(search_username,search_password)
-    if search == '':
-        messagebox.showinfo('!','nothing found!')
-        search = search_(username,password)
-    for records in search:
-        if records[1] == ent_name.get() and records[2] == ent_pass.get():
-            print('hi')
-            return
-        insert(username,password)
 
 
 
