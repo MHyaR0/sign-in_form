@@ -26,9 +26,15 @@ def delete(id):
     cur.execute('delete from info where id = ?',(id,))
     con.commit()
 
+def search_(inp):
+    cur.execute('select * from info where username like ? or password like ?',(inp,inp))
+    record = cur.fetchall()
+    return record
 
-
-
+def select_():
+    cur.execute('select * from info')
+    record = cur.fetchall()
+    return record
 
 
 def clear():
@@ -40,15 +46,21 @@ def clear():
 
 
 def insert_2():
+    global records
+    records = select_()
     create_table()
-    username = ent_name.get()
-    password = ent_pass.get()
-    if not username or not password:
-        messagebox.showerror('!','you must enter username and password!')
-        return
-    ent_name.focus_set()
-    insert(username,password)
-
+    username = ent_name.get().strip()
+    password = ent_pass.get().strip()
+    for record in records:
+        if not username or not password:
+            messagebox.showerror('!','you must enter username and password!')
+            return
+        if record[1] == username or record[2] == password:
+            messagebox.showerror('error','you\'ve submited with these info.')
+            return
+        ent_name.focus_set()
+        insert(username,password)
+    clear()
 
 
 
@@ -57,7 +69,7 @@ def update_user():
     username = ent_name.get()
     password = ent_pass.get()
     index = lst_show.curselection()
-    data = lst_show.get(index)
+    data = lst_show.get(index[0])
     result = messagebox.askquestion('?','do you want to save this changes?')
     if result == 'yes':    
         update(data[0],username,password)
@@ -80,15 +92,24 @@ def delete_user():
 
 
 
-def fetch(y):
+def fetch(event):
     clear()
     index = lst_show.curselection()
-    data = lst_show.get(index)
+    data = lst_show.get(index[0])
     ent_name.insert(0,data[1])
     ent_pass.insert(0,data[2])
 
 
-
+def search():
+    input_ = ent_search.get().strip()
+    input_search = f'%{input_}%'
+    lst_show.delete(0,END)
+    result = search_(input_search)
+    if not result:
+        lst_show.insert(END,'nothing found')
+        return
+    for record in result:
+        lst_show.insert(END,f'{record[1]} {record[2]}')
 
 def show():
     lst_show.delete(0,END)
@@ -111,7 +132,7 @@ def exit():
 
 #________________
 win = Tk()
-win.geometry('400x400')
+win.geometry('400x500')
 win.resizable(0,0)
 win.config(bg='light blue')
 
@@ -135,7 +156,8 @@ ent_name.place(x=140,y=27)
 ent_pass = Entry(win,width=25,show='')
 ent_pass.place(x=140,y=67)
 
-
+ent_search = Entry(win,width=40)
+ent_search.place(x=110,y=400,height=42)
 
 #list box______________
 
@@ -165,8 +187,13 @@ btn_edit.place(x=190,y=350)
 btn_delete = Button(win,text='Delete',font='tahoma 15 bold',width=12,command=delete_user)
 btn_delete.place(x=190,y=300)
 
+btn_search = Button(win,text='search',font ='tahoma 15 bold',width=6,command=search)
+btn_search.place(x=20,y=400)
 
 lst_show.bind('<<ListboxSelect>>',fetch)
+
+#==globals
+records = select_()
 
 win.mainloop()
 con.close()
